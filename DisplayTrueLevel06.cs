@@ -3,6 +3,8 @@ using HarmonyLib;
 using Il2Cpp;
 using display_true_level_06;
 using Il2Cppnewdata_H;
+using Il2CppTMPro;
+using static System.Net.Mime.MediaTypeNames;
 
 [assembly: MelonInfo(typeof(DisplayTrueLevel06), "Display true level (0.6 ver.)", "1.0.0", "Matthiew Purple")]
 [assembly: MelonGame("アトラス", "smt3hd")]
@@ -53,17 +55,27 @@ public class DisplayTrueLevel06 : MelonMod
     {
         public static void Postfix()
         {
-            for (int i = 0; i < dds3GlobalWork.DDS3_GBWK.stocklist.Length; i++)
+            for (int i = 1; i <= 4; i++)
             {
-                if (dds3GlobalWork.DDS3_GBWK.unitwork[i].level > 99 && dds3GlobalWork.DDS3_GBWK.unitwork[i].level != 255)
+                string name = cmpInit._campUIScr.transform.Find($"party/party_status/party_status{Utility.GetNumberForPath(i)}/Text_nameTM").gameObject.GetComponent<TextMeshProUGUI>().text;
+                name = Utility.removeMaterial(name);
+                ushort level = Utility.getLevelFromName(name);
+                if (level > 99)
                 {
-                    cmpInit._campUIScr.transform.Find($"party/party_status/party_status{Utility.GetNumberForPath(i+1)}/num_lv").gameObject.GetComponent<CounterCtr>().colorIndex = dds3GlobalWork.DDS3_GBWK.unitwork[i].level / 100 + 1;
-                    cmpInit._campUIScr.transform.Find($"party/party_status/party_status{Utility.GetNumberForPath(i+1)}/num_lv").gameObject.GetComponent<CounterCtr>().Change();
+                    cmpInit._campUIScr.transform.Find($"party/party_status/party_status{Utility.GetNumberForPath(i)}/num_lv").gameObject.GetComponent<CounterCtr>().colorIndex = level / 100 + 1;
+                    cmpInit._campUIScr.transform.Find($"party/party_status/party_status{Utility.GetNumberForPath(i)}/num_lv").gameObject.GetComponent<CounterCtr>().Change();
                 }
-                else if (dds3GlobalWork.DDS3_GBWK.unitwork[i].level == 255)
+            }
+
+            for (int i = 1; i <= 12; i++)
+            {
+                string name = cmpInit._campUIScr.transform.Find($"party/party_status/stock_status{Utility.GetNumberForPath(i)}/Text_nameTM").gameObject.GetComponent<TextMeshProUGUI>().text;
+                name = Utility.removeMaterial(name);
+                ushort level = Utility.getLevelFromName(name);
+                if (level > 99)
                 {
-                    cmpInit._campUIScr.transform.Find($"party/party_status/party_status{Utility.GetNumberForPath(i + 1)}/num_lv").gameObject.GetComponent<CounterCtr>().colorIndex = 6; // Displays 55 in black instead of red
-                    cmpInit._campUIScr.transform.Find($"party/party_status/party_status{Utility.GetNumberForPath(i + 1)}/num_lv").gameObject.GetComponent<CounterCtr>().Change();
+                    cmpInit._campUIScr.transform.Find($"party/party_status/stock_status{Utility.GetNumberForPath(i)}/num_lv").gameObject.GetComponent<CounterCtr>().colorIndex = level / 100 + 1;
+                    cmpInit._campUIScr.transform.Find($"party/party_status/stock_status{Utility.GetNumberForPath(i)}/num_lv").gameObject.GetComponent<CounterCtr>().Change();
                 }
             }
         }
@@ -76,6 +88,22 @@ public class DisplayTrueLevel06 : MelonMod
         {
             if (i < 10) return "0" + i;
             else return i.ToString();
+        }
+
+        // Removes the beginning of the name (the material)
+        public static string removeMaterial(string text)
+        {
+            return text.Substring(text.IndexOf(">") + 1);
+        }
+
+        public static ushort getLevelFromName(string name)
+        {
+            foreach (datUnitWork_t work in dds3GlobalWork.DDS3_GBWK.unitwork)
+            {
+                if (datDevilName.Get(work.id) == name) return work.level;
+            }
+            if (frName.frGetCNameString(0) == name) return dds3GlobalWork.DDS3_GBWK.unitwork[0].level;
+            return 0; // Not gonna happen
         }
     }
 }
