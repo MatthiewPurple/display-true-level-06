@@ -55,6 +55,7 @@ public class DisplayTrueLevel06 : MelonMod
     {
         public static void Postfix()
         {
+            // For the party
             for (int i = 1; i <= 4; i++)
             {
                 string name = cmpInit._campUIScr.transform.Find($"party/party_status/party_status{Utility.GetNumberForPath(i)}/Text_nameTM").gameObject.GetComponent<TextMeshProUGUI>().text;
@@ -67,6 +68,7 @@ public class DisplayTrueLevel06 : MelonMod
                 }
             }
 
+            // For the rest of the stock
             for (int i = 1; i <= 12; i++)
             {
                 string name = cmpInit._campUIScr.transform.Find($"party/party_status/stock_status{Utility.GetNumberForPath(i)}/Text_nameTM").gameObject.GetComponent<TextMeshProUGUI>().text;
@@ -96,13 +98,18 @@ public class DisplayTrueLevel06 : MelonMod
             return text.Substring(text.IndexOf(">") + 1);
         }
 
+        // Returns level from name
         public static ushort getLevelFromName(string name)
         {
+            // For each demon in the stock
             foreach (datUnitWork_t work in dds3GlobalWork.DDS3_GBWK.unitwork)
             {
-                if (datDevilName.Get(work.id) == name) return work.level;
+                if (datDevilName.Get(work.id) == name) return work.level; // Compares names
             }
+
+            // Special case for Demi-fiend's nickname
             if (frName.frGetCNameString(0) == name) return dds3GlobalWork.DDS3_GBWK.unitwork[0].level;
+
             return 0; // Not gonna happen
         }
     }
